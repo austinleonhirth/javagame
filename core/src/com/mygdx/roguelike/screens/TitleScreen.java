@@ -3,11 +3,17 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.mygdx.roguelike.AustinsGame;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -27,9 +33,11 @@ public class TitleScreen implements Screen{
     /*
      * Actors
      */
-    private Label title;
     private Label fpsCounter;
     private Image titleLogo;
+    private ImageButton playButton;
+    private ImageButton settingsButton;
+    private ImageButton exitButton;
 
     /*
      * Constructor for the TitleScreen class.
@@ -42,32 +50,77 @@ public class TitleScreen implements Screen{
         Viewport viewport = new ScreenViewport();
         this.stage = new Stage(viewport, game.batch);
 
-        //Title text (center of screen)
-        BitmapFont title_font           = new BitmapFont(); //default font
-        Label.LabelStyle title_style    = new Label.LabelStyle();
-        title_style.font                = title_font;
-        title_style.fontColor           = Color.WHITE;
-        title = new Label("Austin's Game", title_style);
-        title.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-100, Align.center);
-
         //FPS counter
         BitmapFont fps_font             = new BitmapFont(); //default font
         Label.LabelStyle fps_style      = new Label.LabelStyle();
         fps_style.font                  = fps_font;
-        fps_style.fontColor             = Color.WHITE;
+        fps_style.fontColor             = Color.BLACK;
         fpsCounter = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), fps_style);
-        fpsCounter.setPosition(0, Gdx.graphics.getHeight(), Align.topLeft);
+        fpsCounter.setPosition(2, Gdx.graphics.getHeight(), Align.topLeft);
 
         //Title logo
-        Texture logoTexture = new Texture(Gdx.files.internal("titlescreen/cc_title.png"));
+        Texture logoTexture = new Texture(Gdx.files.internal("assets/titlescreen/crackcrazy_2.jpg"));
         titleLogo = new Image(logoTexture);
-        titleLogo.setSize(420, 400);
-        titleLogo.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-220, Align.center);
+        titleLogo.setSize(550, 520);
+        titleLogo.setPosition(Gdx.graphics.getWidth()/2+10, Gdx.graphics.getHeight()-220, Align.center);
+
+        //Play button
+        Texture b_play      = new Texture(Gdx.files.internal("assets/titlescreen/b_play.png"));
+        Texture b_play_h    = new Texture(Gdx.files.internal("assets/titlescreen/b_play_h.png"));
+        Texture b_play_p    = new Texture(Gdx.files.internal("assets/titlescreen/b_play_p.png"));
+        Drawable play_drawable          = new TextureRegionDrawable(b_play);
+        Drawable play_drawable_h        = new TextureRegionDrawable(b_play_h);
+        Drawable play_drawable_p        = new TextureRegionDrawable(b_play_p);
+        ImageButtonStyle b_playStyle    = new ImageButtonStyle();
+        b_playStyle.up      = play_drawable;
+        b_playStyle.over    = play_drawable_h;
+        b_playStyle.down    = play_drawable_p;
+        playButton          = new ImageButton(b_playStyle);
+        playButton.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-500, Align.center);
+
+        //Settings button
+        Texture b_settings      = new Texture(Gdx.files.internal("assets/titlescreen/b_settings.png"));
+        Texture b_settings_h    = new Texture(Gdx.files.internal("assets/titlescreen/b_settings_h.png"));
+        Texture b_settings_p    = new Texture(Gdx.files.internal("assets/titlescreen/b_settings_p.png"));
+        Drawable settings_drawable          = new TextureRegionDrawable(b_settings);
+        Drawable settings_drawable_h        = new TextureRegionDrawable(b_settings_h);
+        Drawable settings_drawable_p        = new TextureRegionDrawable(b_settings_p);
+        ImageButtonStyle b_settingsStyle    = new ImageButtonStyle();
+        b_settingsStyle.up      = settings_drawable;
+        b_settingsStyle.over    = settings_drawable_h;
+        b_settingsStyle.down    = settings_drawable_p;
+        settingsButton          = new ImageButton(b_settingsStyle);
+        settingsButton.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-580, Align.center);
+
+        //Exit button
+        Texture b_exit      = new Texture(Gdx.files.internal("assets/titlescreen/b_exit.png"));
+        Texture b_exit_h    = new Texture(Gdx.files.internal("assets/titlescreen/b_exit_h.png"));
+        Texture b_exit_p    = new Texture(Gdx.files.internal("assets/titlescreen/b_exit_p.png"));
+        Drawable exit_drawable          = new TextureRegionDrawable(b_exit);
+        Drawable exit_drawable_h        = new TextureRegionDrawable(b_exit_h);
+        Drawable exit_drawable_p        = new TextureRegionDrawable(b_exit_p);
+        ImageButtonStyle b_exitStyle    = new ImageButtonStyle();
+        b_exitStyle.up      = exit_drawable;
+        b_exitStyle.over    = exit_drawable_h;
+        b_exitStyle.down    = exit_drawable_p;
+        exitButton          = new ImageButton(b_exitStyle);
+        exitButton.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-660, Align.center);
+
+        exitButton.addListener(new ClickListener() {
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+            // This will be called when the button is clicked.
+                Gdx.app.exit();
+        }});
+        
 
         //Add actors
-        //stage.addActor(title);
         stage.addActor(titleLogo);
         stage.addActor(fpsCounter);
+        stage.addActor(playButton);
+        stage.addActor(settingsButton);
+        stage.addActor(exitButton);
+
     }
 
     @Override
@@ -79,7 +132,7 @@ public class TitleScreen implements Screen{
     @Override
     public void render(float delta) {
         //Clear screen
-        ScreenUtils.clear(Color.BLACK);
+        ScreenUtils.clear(new Color(241f/255f, 233f/255f, 212f/255f, 1f));
 
         //Draw stage
         fpsCounter.setText("FPS: " + Gdx.graphics.getFramesPerSecond());
@@ -92,9 +145,13 @@ public class TitleScreen implements Screen{
     public void resize(int width, int height) {
         //update based on new screen size
         stage.getViewport().update(width, height, true);
-        titleLogo.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-220, Align.center);
-        title.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-100, Align.center);
-        fpsCounter.setPosition(0, Gdx.graphics.getHeight(), Align.topLeft);
+        titleLogo.setPosition(Gdx.graphics.getWidth()/2+10, Gdx.graphics.getHeight()-220, Align.center);
+        fpsCounter.setPosition(2, Gdx.graphics.getHeight(), Align.topLeft);
+
+        //button updates
+        playButton.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-500, Align.center);
+        settingsButton.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-580, Align.center);
+        exitButton.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-660, Align.center);
 
     }
 
