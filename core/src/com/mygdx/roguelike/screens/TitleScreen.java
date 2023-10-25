@@ -1,10 +1,12 @@
 package com.mygdx.roguelike.screens;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.mygdx.roguelike.AustinsGame;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -25,8 +27,9 @@ public class TitleScreen implements Screen{
     /*
      * Actors
      */
-    Label title;
-    Label fpsCounter;
+    private Label title;
+    private Label fpsCounter;
+    private Image titleLogo;
 
     /*
      * Constructor for the TitleScreen class.
@@ -47,7 +50,7 @@ public class TitleScreen implements Screen{
         title = new Label("Austin's Game", title_style);
         title.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-100, Align.center);
 
-        //fps counter
+        //FPS counter
         BitmapFont fps_font             = new BitmapFont(); //default font
         Label.LabelStyle fps_style      = new Label.LabelStyle();
         fps_style.font                  = fps_font;
@@ -55,8 +58,15 @@ public class TitleScreen implements Screen{
         fpsCounter = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), fps_style);
         fpsCounter.setPosition(0, Gdx.graphics.getHeight(), Align.topLeft);
 
+        //Title logo
+        Texture logoTexture = new Texture(Gdx.files.internal("titlescreen/cc_title.png"));
+        titleLogo = new Image(logoTexture);
+        titleLogo.setSize(420, 400);
+        titleLogo.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-220, Align.center);
+
         //Add actors
-        stage.addActor(title);
+        //stage.addActor(title);
+        stage.addActor(titleLogo);
         stage.addActor(fpsCounter);
     }
 
@@ -82,6 +92,7 @@ public class TitleScreen implements Screen{
     public void resize(int width, int height) {
         //update based on new screen size
         stage.getViewport().update(width, height, true);
+        titleLogo.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-220, Align.center);
         title.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-100, Align.center);
         fpsCounter.setPosition(0, Gdx.graphics.getHeight(), Align.topLeft);
 
