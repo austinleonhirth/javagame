@@ -10,7 +10,7 @@ public class DesktopLauncher {
  * This is the main entry point for the desktop version of the game.
  * Application Information:
  */
-final static String TITLE 			= "Austin's Game";
+final static String TITLE 			= "Crack Crazy";
 final static int 	WINDOW_WIDTH 	= 1280;
 final static int 	WINDOW_HEIGHT 	= 720;
 final static int	FPS 			= 120;

@@ -40,6 +40,21 @@ public class TitleScreen implements Screen{
     private ImageButton exitButton;
 
     /*
+     * Textures need to be visible to dispose() so we can dispose of them
+     */
+    private Texture logoTexture;
+    private Texture b_play;
+    private Texture b_play_h;
+    private Texture b_play_p;
+    private Texture b_settings;
+    private Texture b_settings_h;
+    private Texture b_settings_p;
+    private Texture b_exit;
+    private Texture b_exit_h;
+    private Texture b_exit_p;
+
+
+    /*
      * Constructor for the TitleScreen class.
      * @param 'game' The AustinsGame game object (used to switch screens)
      */
@@ -59,15 +74,15 @@ public class TitleScreen implements Screen{
         fpsCounter.setPosition(2, Gdx.graphics.getHeight(), Align.topLeft);
 
         //Title logo
-        Texture logoTexture = new Texture(Gdx.files.internal("assets/titlescreen/crackcrazy_2.jpg"));
+        logoTexture = new Texture(Gdx.files.internal("assets/titlescreen/crackcrazy_2.jpg"));
         titleLogo = new Image(logoTexture);
         titleLogo.setSize(550, 520);
         titleLogo.setPosition(Gdx.graphics.getWidth()/2+10, Gdx.graphics.getHeight()-220, Align.center);
 
         //Play button
-        Texture b_play      = new Texture(Gdx.files.internal("assets/titlescreen/b_play.png"));
-        Texture b_play_h    = new Texture(Gdx.files.internal("assets/titlescreen/b_play_h.png"));
-        Texture b_play_p    = new Texture(Gdx.files.internal("assets/titlescreen/b_play_p.png"));
+        b_play      = new Texture(Gdx.files.internal("assets/titlescreen/b_play.png"));
+        b_play_h    = new Texture(Gdx.files.internal("assets/titlescreen/b_play_h.png"));
+        b_play_p    = new Texture(Gdx.files.internal("assets/titlescreen/b_play_p.png"));
         Drawable play_drawable          = new TextureRegionDrawable(b_play);
         Drawable play_drawable_h        = new TextureRegionDrawable(b_play_h);
         Drawable play_drawable_p        = new TextureRegionDrawable(b_play_p);
@@ -78,10 +93,18 @@ public class TitleScreen implements Screen{
         playButton          = new ImageButton(b_playStyle);
         playButton.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-500, Align.center);
 
+        playButton.addListener(new ClickListener() {
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+            // This will be called when the button is clicked.
+                game.setScreen(new GameScreen(game));
+        }});
+
+
         //Settings button
-        Texture b_settings      = new Texture(Gdx.files.internal("assets/titlescreen/b_settings.png"));
-        Texture b_settings_h    = new Texture(Gdx.files.internal("assets/titlescreen/b_settings_h.png"));
-        Texture b_settings_p    = new Texture(Gdx.files.internal("assets/titlescreen/b_settings_p.png"));
+        b_settings      = new Texture(Gdx.files.internal("assets/titlescreen/b_settings.png"));
+        b_settings_h    = new Texture(Gdx.files.internal("assets/titlescreen/b_settings_h.png"));
+        b_settings_p    = new Texture(Gdx.files.internal("assets/titlescreen/b_settings_p.png"));
         Drawable settings_drawable          = new TextureRegionDrawable(b_settings);
         Drawable settings_drawable_h        = new TextureRegionDrawable(b_settings_h);
         Drawable settings_drawable_p        = new TextureRegionDrawable(b_settings_p);
@@ -93,9 +116,9 @@ public class TitleScreen implements Screen{
         settingsButton.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()-580, Align.center);
 
         //Exit button
-        Texture b_exit      = new Texture(Gdx.files.internal("assets/titlescreen/b_exit.png"));
-        Texture b_exit_h    = new Texture(Gdx.files.internal("assets/titlescreen/b_exit_h.png"));
-        Texture b_exit_p    = new Texture(Gdx.files.internal("assets/titlescreen/b_exit_p.png"));
+        b_exit      = new Texture(Gdx.files.internal("assets/titlescreen/b_exit.png"));
+        b_exit_h    = new Texture(Gdx.files.internal("assets/titlescreen/b_exit_h.png"));
+        b_exit_p    = new Texture(Gdx.files.internal("assets/titlescreen/b_exit_p.png"));
         Drawable exit_drawable          = new TextureRegionDrawable(b_exit);
         Drawable exit_drawable_h        = new TextureRegionDrawable(b_exit_h);
         Drawable exit_drawable_p        = new TextureRegionDrawable(b_exit_p);
@@ -132,7 +155,7 @@ public class TitleScreen implements Screen{
     @Override
     public void render(float delta) {
         //Clear screen
-        ScreenUtils.clear(new Color(241f/255f, 233f/255f, 212f/255f, 1f));
+        ScreenUtils.clear(game.mainBackgroundColor);
 
         //Draw stage
         fpsCounter.setText("FPS: " + Gdx.graphics.getFramesPerSecond());
@@ -172,6 +195,19 @@ public class TitleScreen implements Screen{
 
     @Override
     public void dispose() {
+        //textures
+        logoTexture.dispose();
+        b_play.dispose();
+        b_play_h.dispose();
+        b_play_p.dispose();
+        b_settings.dispose();
+        b_settings_h.dispose();
+        b_settings_p.dispose();
+        b_exit.dispose();
+        b_exit_h.dispose();
+        b_exit_p.dispose();
+
+        //stage dispose
         stage.dispose();
     }
     
