@@ -9,8 +9,15 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.roguelike.AustinsGame;
+import com.mygdx.roguelike.characters.GameCharacter;
 
 public class GameScreen implements Screen{
 
@@ -22,32 +29,41 @@ public class GameScreen implements Screen{
     static final int camSpeed = 15;
     static final float camZoomSpeed = 1f;
 
-    static final int camViewportWidth = 30;
-    static final int camViewportHeight = 30;
+    static final int camViewportWidth = 45;
+    static final int camViewportHeight = 45;
     
-    private OrthographicCamera cam;
     private Sprite map;
     private SpriteBatch batch;
-    private float rotationSpeed;
+
+    private static Stage stage;
+    GameCharacter character;
 
     public GameScreen(AustinsGame game) {
 
-        rotationSpeed = 0.5f;
+        batch = new SpriteBatch();
 
+        //Test actor
+        character = new GameCharacter(new Texture(Gdx.files.internal("moomoo.jpg")),WORLD_HEIGHT, WORLD_WIDTH);
+        character.setPosition(50, 50);
+    
+        // Create an OrthographicCamera that controls the viewable area according to your defined dimensions
+        OrthographicCamera camera = new OrthographicCamera();
+        camera.setToOrtho(false, camViewportWidth, camViewportHeight);
+    
+        // Create the FitViewport with your camera, and the world width and height as the minimum viewable area
+        FillViewport viewport = new FillViewport(camViewportWidth, camViewportHeight, camera);
+        stage = new Stage(viewport, batch);  
+        Gdx.input.setInputProcessor(stage);
+    
         map = new Sprite(new Texture(Gdx.files.internal("test_map.png")));
         map.setPosition(0, 0);
         map.setSize(WORLD_WIDTH, WORLD_HEIGHT);
 
-        float w = Gdx.graphics.getWidth();
-        float h = Gdx.graphics.getHeight();
-
-        cam = new OrthographicCamera(camViewportWidth, camViewportHeight * (h / w));
-        cam.position.set(cam.viewportWidth / 2f, cam.viewportHeight / 2f, 0);
-        cam.update();
-
-        batch = new SpriteBatch();
-
+        // Ensure our camera updates once initially
+        camera.update();
+        stage.addActor(character);
     }
+    
 
     @Override
     public void show() {
@@ -56,22 +72,45 @@ public class GameScreen implements Screen{
 
     @Override
     public void render(float delta) {
+        // Get the camera from the stage
+        OrthographicCamera camera = (OrthographicCamera) stage.getCamera();
+    
+        // Update the camera position based on the character's position
+        // We also center the camera on the character by adding half the character's dimensions
+        float camX = character.getX() + character.characterWidth / 2;
+        float camY = character.getY() + character.characterHeight / 2;
+    
+        // Clamp the camera's position to ensure it does not go outside the world bounds
+        float effectiveViewportWidth = camera.viewportWidth * camera.zoom;
+        float effectiveViewportHeight = camera.viewportHeight * camera.zoom;
 
-        handleCameraInput(delta);
-        cam.update();
-        batch.setProjectionMatrix(cam.combined);
+        //Aspect ratio
+        float ar = (float) Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
+    
+        // These are the clamped x and y coordinates for the camera
+        camera.position.x = MathUtils.clamp(camX, effectiveViewportWidth / 2f, WORLD_WIDTH - effectiveViewportWidth / 2f);
+        camera.position.y = MathUtils.clamp(camY, effectiveViewportHeight/2 * ar, WORLD_HEIGHT - effectiveViewportHeight/2 * ar);
+    
+        camera.update();
+    
+        // Set the SpriteBatch's projection matrix
+        batch.setProjectionMatrix(camera.combined);
+    
+        // Clear the screen and draw everything
         ScreenUtils.clear(Color.BLACK);
+        
         batch.begin();
-        map.draw(batch);
+        map.draw(batch);  // Draw the map first
         batch.end();
-
+    
+        stage.act(delta); // Perform the stage actions
+        stage.draw();     // Draw the stage
     }
-
+    
     @Override
     public void resize(int width, int height) {
-        cam.viewportWidth = camViewportWidth;                 
-		cam.viewportHeight = camViewportHeight * height/width; 
-		cam.update();
+        stage.getViewport().update(width, height, true);
+        stage.getCamera().update();
     }
 
     @Override
@@ -91,44 +130,7 @@ public class GameScreen implements Screen{
 
     @Override
     public void dispose() {
-
-    }
-
-    public void handleCameraInput(float delta){
-        /*
-         * handles Camera zoom and translation
-         * zoom in = page up
-         * zoom out = page down
-         * 
-         * arrow keys translate
-        */
-
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            cam.translate(-1*camSpeed*delta, 0, 0);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            cam.translate(camSpeed*delta, 0, 0);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.UP)){
-            cam.translate(0, camSpeed*delta, 0);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-            cam.translate(0, -1*camSpeed*delta, 0);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.PAGE_UP)){
-            cam.zoom -= camZoomSpeed*delta;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.PAGE_DOWN)){
-            cam.zoom += camZoomSpeed*delta;
-        }
-        
-        cam.zoom = MathUtils.clamp(cam.zoom, 0.1f, WORLD_WIDTH/cam.viewportWidth);
-
-		float effectiveViewportWidth = cam.viewportWidth * cam.zoom;
-		float effectiveViewportHeight = cam.viewportHeight * cam.zoom;
-
-		cam.position.x = MathUtils.clamp(cam.position.x, effectiveViewportWidth / 2f, WORLD_WIDTH - effectiveViewportWidth / 2f);
-		cam.position.y = MathUtils.clamp(cam.position.y, effectiveViewportHeight / 2f, WORLD_HEIGHT - effectiveViewportHeight / 2f);
+        stage.dispose();
     }
     
 }
